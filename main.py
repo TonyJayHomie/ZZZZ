@@ -3,9 +3,10 @@ Claude Web Wrapper — Entry Point
 
 DOM automation bridge for claude.ai → OpenAI-compatible API.
 Zero credentials. Uses Playwright persistent browser context.
+Browser runs HEADED (minimized) — Cloudflare blocks headless.
 
 Usage:
-  First run (login):  python main.py --headed
+  First run (login):  python main.py --login
   Normal run:         python main.py
   Custom port:        python main.py --port 3967
 """
@@ -63,9 +64,9 @@ def parse_args():
         help=f"Server host (default: {config.HOST})",
     )
     parser.add_argument(
-        "--headed",
+        "--login",
         action="store_true",
-        help="Run browser in headed mode (for first-time login)",
+        help="Open visible browser window for first-time login",
     )
     parser.add_argument(
         "--user-data-dir",
@@ -96,13 +97,13 @@ async def main():
     log.info("")
     log.info("  Port:      %d", args.port)
     log.info("  Host:      %s", args.host)
-    log.info("  Headless:  %s", not args.headed)
+    log.info("  Mode:      %s", "LOGIN (visible browser)" if args.login else "BACKGROUND (minimized)")
     log.info("  Data dir:  %s", args.user_data_dir)
     log.info("")
 
-    # Launch browser
+    # Launch browser — always headed (Cloudflare blocks headless)
     browser = BrowserManager(
-        headless=not args.headed,
+        login_mode=args.login,
         user_data_dir=args.user_data_dir,
     )
 
@@ -114,25 +115,24 @@ async def main():
         if logged_in:
             log.info("[OK] Logged into claude.ai — ready to serve")
         else:
-            if args.headed:
-                log.info(
-                    "[LOGIN] Browser is open — please log into claude.ai manually"
-                )
-                log.info("[LOGIN] The server will start once you're logged in")
-                log.info("[LOGIN] Press Ctrl+C to stop")
-                # Wait for login
+            if args.login:
+                log.info("")
+                log.info("  [LOGIN] Browser is open — log into claude.ai now")
+                log.info("  [LOGIN] Server starts automatically after login")
+                log.info("  [LOGIN] Press Ctrl+C to cancel")
+                log.info("")
+                # Wait for login (poll every 2s)
                 while not await browser.is_logged_in():
                     await asyncio.sleep(2)
                 log.info("[OK] Login detected — starting server")
             else:
-                log.warning(
-                    "[WARN] Not logged in. Restart with --headed to log in:"
-                )
-                log.warning("       python main.py --headed")
                 log.warning("")
-                log.warning("  The browser will open. Log into claude.ai.")
+                log.warning("  [WARN] Not logged in!")
+                log.warning("  Run login.bat first to log into claude.ai.")
                 log.warning("  Your session persists in: %s", args.user_data_dir)
-                log.warning("  After login, restart without --headed.")
+                log.warning("  After login, run start.bat to serve.")
+                log.warning("")
+                log.warning("  Starting server anyway (will fail on requests)...")
 
         # Wire up the browser to the FastAPI server
         set_browser(browser)

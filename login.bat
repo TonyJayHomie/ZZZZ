@@ -1,10 +1,9 @@
 @echo off
-title Claude Web Wrapper
+title Claude Web Wrapper — LOGIN
 echo ============================================================
-echo   Claude Web Wrapper
-echo   OpenAI-compatible API via DOM automation
-echo   Zero credentials — pure browser automation
-echo   Browser runs headed-minimized (Cloudflare bypass)
+echo   Claude Web Wrapper — FIRST TIME LOGIN
+echo   A browser window will open. Log into claude.ai.
+echo   After login, close this and run start.bat
 echo ============================================================
 echo.
 
@@ -31,14 +30,10 @@ if not exist "venv" (
     call venv\Scripts\activate.bat
 )
 
-echo [START] Starting server on port 3967...
-echo [START] API: http://127.0.0.1:3967/v1/chat/completions
-echo [START] Models: http://127.0.0.1:3967/v1/models
-echo [START] Browser runs minimized in background (not headless)
-echo.
-echo If not logged in yet, close this and run login.bat first!
+echo [LOGIN] Opening browser — log into claude.ai...
+echo [LOGIN] After login, close this window and run start.bat
 echo.
 
-python main.py --port 3967 %*
+python main.py --login --port 3967
 
 pause
