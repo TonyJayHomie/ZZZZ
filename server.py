@@ -7,7 +7,8 @@ Zero credentials — no API keys, no auth tokens, no .env files.
 import asyncio
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from automator import Automator
@@ -29,6 +30,15 @@ app = FastAPI(
     title="Claude Web Wrapper",
     description="OpenAI-compatible API bridge for claude.ai via DOM automation",
     version="0.1.0",
+)
+
+# CORS — required for OpenClaw/Open WebUI to call us from a different port
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Global state — set by main.py before server starts
