@@ -15,7 +15,7 @@ from playwright.async_api import (
 )
 
 import config
-import selectors as sel
+import dom_selectors as sel
 
 log = logging.getLogger("cww.browser")
 

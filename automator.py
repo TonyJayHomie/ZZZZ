@@ -12,7 +12,7 @@ from typing import AsyncGenerator
 from playwright.async_api import Page
 
 import config
-import selectors as sel
+import dom_selectors as sel
 
 log = logging.getLogger("cww.automator")
 
